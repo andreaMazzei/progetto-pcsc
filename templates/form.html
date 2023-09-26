@@ -1,0 +1,78 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="Andrea Mazzei, Raffaele Pignata" />
+    <title>Taxi trajectory</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="https://firebasestorage.googleapis.com/v0/b/progetto-pcsc.appspot.com/o/styles.css?alt=media&token=81e0c4f3-2c2f-4b42-b784-b47e21284e47" rel="stylesheet"  />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand mx-auto" style="display: flex; justify-content: center; font-size: 30px">Taxi trajectory</a>
+    </div>
+</nav>
+
+<form action="#" id="taxiForm">
+    <label for="taxi" style="width: 50px; height: 80px; font-size: 25px;">Taxi</label>
+    <select name="taxi" id="taxi" style="width: 120px; heigth: 60px; font-size: 25px;">
+      {% for x in num|unique|list %}
+        <option value="{{ x }}" name="n" >{{ x }}</option>
+      {% endfor %}
+    </select>
+<input type="submit" value="Submit", style="width: 120px; height: 50px; font-size: 25px;">
+</form>
+
+<div class ="container">
+    <div class = "text-center mt-5">
+        <div id ="mapid" style="height: 500px"></div>
+        <script>
+            var map;
+            var polyline;
+
+            function createMap() {
+                map = L.map('mapid').setView([39.916565, 116.402547], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                polyline = L.polyline([]).addTo(map);
+            }
+
+            function updateMap() {
+                var taxiId = document.getElementById("taxi").value;
+                var data = {{ data | tojson | safe }};
+                var coordinate = [];
+
+                for (var x = 0; x < data.length; x++) {
+                    if (data[x][0] == taxiId) {
+                        var lat = data[x][1];
+                        var lon = data[x][2];
+                        coordinate.push([lat, lon]);
+                    }
+                }
+
+                map.removeLayer(polyline);
+                if (coordinate.length > 0) {
+                    polyline = L.polyline(coordinate).addTo(map);
+                }
+            }
+
+            createMap();
+
+            document.getElementById("taxiForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+                updateMap();
+            });
+
+        </script>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/scripts.js"></script>
+
+</body>
+</html>
+

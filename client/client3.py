@@ -21,7 +21,7 @@ except Exception as e:
     print(e)
 
 # Creo messaggio
-with open('5.txt') as f:
+with open('../data/3.txt') as f:
     for r in f:
         r = r.strip()
         print("sending: ", r)

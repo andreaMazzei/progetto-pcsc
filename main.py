@@ -28,3 +28,64 @@ def save_data_2_bq(event, context):
         return "New rows have been added."
     else:
         return "Encountered errors while inserting rows: {}".format(errors)
+
+def last_locations(request):
+    from flask import render_template
+    from google.cloud import bigquery
+    from google.oauth2 import service_account
+
+    key_path = "credentials.json"
+
+    credentials = service_account.Credentials.from_service_account_file(
+        key_path,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
+
+    client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+
+    query = """
+        select num, datetime, lat, lon
+        from `progetto-pcsc.dataset.tabella` t1
+        where datetime = (select max(datetime) from `progetto-pcsc.dataset.tabella` t2 where t1.num = t2.num)
+        group by num, datetime, lat, lon
+    """
+    query_job = client.query(query)  # Make an API request.
+
+    geo = []
+    for row in query_job:
+        geo.append([row[0], row[2], row[3]])
+
+    return render_template('index.html', geo=geo)
+def trajectory(request):
+    from flask import render_template
+    from google.cloud import bigquery
+    from google.oauth2 import service_account
+
+    key_path = "credentials.json"
+
+    credentials = service_account.Credentials.from_service_account_file(
+        key_path,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
+
+    client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+
+    query = """
+         select num, datetime, lat, lon  
+         from `progetto-pcsc.dataset.tabella` t1
+         order by TIMESTAMP(datetime) 
+
+     """
+    query_job = client.query(query)  # Make an API request.
+
+    num = []
+    for row in query_job:
+        num.append(row[0])
+
+    num.sort()
+
+    data = []
+    for row in query_job:
+        data.append([row[0], row[2], row[3]])
+
+    return render_template('form.html', num=num, data=data)
