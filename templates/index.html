@@ -7,14 +7,13 @@
         <meta name="author" content="Andrea Mazzei, Raffaele Pignata" />
         <title>Taxi Dashboard</title>
         <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="https://firebasestorage.googleapis.com/v0/b/progetto-pcsc.appspot.com/o/taxi-app.png?alt=media&token=c59f5c17-bab0-448f-8b3b-8bccab49f293" />
         <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/styles.css" rel="stylesheet" />
-        <!--Prova mappa-->
-         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        <link href="https://firebasestorage.googleapis.com/v0/b/progetto-pcsc.appspot.com/o/styles.css?alt=media&token=81e0c4f3-2c2f-4b42-b784-b47e21284e47" rel="stylesheet" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
 
@@ -28,6 +27,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="https://europe-west1-progetto-pcsc.cloudfunctions.net/select_vehicle">Track Taxi</a></li>
                     </ul>
                 </div>
             </div>
@@ -39,32 +39,24 @@
                 <div id="mapid" style="height: 500px;"></div>
                 <script>
                     function createMap(){
-                    var map = L.map('mapid').setView([39.916565, 116.402547], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                        var geo = {{ geo | tojson | safe }};
+                        var map = L.map('mapid').setView([39.916565, 116.402547], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                        for (var x=0; x < geo.length; x++){
+                            var id = geo[x][0];
+                            var lat = geo[x][1];
+                            var lon = geo[x][2];
+                            var marker = L.marker([lat, lon]).addTo(map).bindPopup('Taxi ' + id);
 
-                    var coordinate = [[]];
-
-                    for (var x=0; x < geo.length; x++){
-                        var id = geo[x][0];
-                        var lat = geo[x][1];
-                        var lon = geo[x][2];
-                        var marker = L.marker([lat, lon]).addTo(map).bindPopup('Taxi ' + id);
-
-                    }
-                    var polyline = L.polyline(coordinate, { color: 'blue' }).addTo(map);
-
+                        }
                     }
                     setTimeout(function(){window.location.reload();}, 25000);
                     createMap();
                 </script>
-
-                <p>Bootstrap v5.2.3</p>
             </div>
         </div>
 
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
     </body>
 </html>
